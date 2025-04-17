@@ -16,7 +16,7 @@ def index():
 @app.route("/home/<string:name>", methods=["GET", "POST"])
 def home(name):
     session["name"] = name
-    return "<h1>Hello {}, on the home page!</h1>".format(name)
+    return render_template("home.html", name=name, display=True)
 
 
 @app.route("/query")
