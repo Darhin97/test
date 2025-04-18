@@ -1,14 +1,32 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}
+	Home page
+{% endblock %}
+
+{% block content %}
+  <body>
     <h1>Hello {{ name }}, on the home page!</h1>
-    {%  if display %}
+
+    {% if display %}
     <h2>This is being displayed</h2>
     {% endif %}
-</body>
-</html>
+
+    <h2>list of food</h2>
+    <ul>
+      {% for x in food %}
+
+      <li>{{ x }}</li>
+      {% endfor %}
+    </ul>
+
+    {% for x in listofdictionaries %}
+    <div>{{ x.name }}</div>
+    {% endfor %}
+
+  <div>
+      <img src='{{ url_for('static', filename='images/img.jpg') }}' />
+  </div>
+  {% include 'include.html' %}
+  </body>
+{% endblock %}
