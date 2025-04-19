@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for, g
 import sqlite3
 
 
@@ -7,6 +7,20 @@ app = Flask(__name__)
 
 app.config["SECRET_KEY"] = "7sl0Hs1ETuodotD9yv9TAIwYAdICiH"
 
+def connect_db():
+   sql = sqlite3.connect("data.db")
+   #convert return data in tuples to dict
+   sql.row_factory = sqlite3.Row
+   return sql
+
+def get_db():
+    if not hasattr(g, "sqlite_db"):
+        g.sqlite_db = connect_db()
+        return g.sqlite_db
+@app.teardown_appcontext
+def close_db(error):
+    if hasattr(g, "sqlite_db"):
+        g.sqlite_db.close()
 
 @app.route("/")
 def index():
@@ -20,12 +34,17 @@ def index():
 @app.route("/home/<string:name>", methods=["GET", "POST"])
 def home(name):
     session["name"] = name
+
+    db = get_db()
+    cursor = db.execute('select id, name, location from users')
+    results = cursor.fetchall()
+
     return render_template(
         "home.html",
         name=name,
         display=True,
         food=["jollof", "pizza", "banku"],
-        listofdictionaries=[{"name": "John"}, {"name": "jane"}],
+        listofdictionaries=[{"name": "John"}, {"name": "jane"}],results=results
     )
 
 
@@ -46,6 +65,11 @@ def theform():
     else:
         name: str | None = request.form["name"]
         location: str | None = request.form["location"]
+
+        db = get_db()
+        db.execute('insert into users (name, location) values (?, ?)', (name, location))
+        db.commit()
+
         return "Hello {}, You are from {}. You have successfully submitted the form </h1>".format(
             name, location
         )
@@ -90,6 +114,13 @@ def processjson():
             "randomkeyinlist": randomList[1],
         }
     )
+
+@app.route('/viewresults')
+def viewresults():
+    db = get_db()
+    cursor = db.execute('select id, name, location from users')
+    results = cursor.fetchall()
+    return  "<h1>The id is {}, The name is {}, The location is {}</h1>".format(results[1]['id'], results[1]["name"], results[1]["location"])
 
 
 @app.route("/json")
