@@ -1,11 +1,11 @@
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for, g
 import sqlite3
-
+import os
 
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "7sl0Hs1ETuodotD9yv9TAIwYAdICiH"
+app.config["SECRET_KEY"] = os.getenv('SECRET_KEY')
 
 def connect_db():
    sql = sqlite3.connect("data.db")
